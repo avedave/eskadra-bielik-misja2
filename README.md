@@ -14,6 +14,32 @@ Podstawowa architektura wdrażanego rozwiązania opiera się na poniższych serw
 
 Dodatkowo, dzięki prostemu interfejsowi graficznemu, aplikacja pozwala na wygodne porównanie i empiryczne przetestowanie "surowego" modelu Bielik polegającego tylko na sobie w konfrontacji z bogatszym strumieniem odpowiedzi nowocześniejszego RAG wspomaganego dedykowanym własnym kontekstem.
 
+### Architektura Systemu
+
+Poniższy diagram ilustruje główne komponenty aplikacji oraz przepływ danych w przypadku zadawania pytania za pośrednictwem mechanizmu RAG:
+
+```mermaid
+graph TD
+    User([Użytkownik])
+    UI[Web UI <br/> Przeglądarka]
+    API[FastAPI <br/> Orchestration API]
+    Emb[EmbeddingGemma <br/> Cloud Run]
+    BQ[(BigQuery <br/> Vector Search)]
+    LLM[Bielik LLM <br/> Cloud Run]
+
+    User -- "Wpisuje zapytanie" --> UI
+    UI -- "POST /ask (Szukanie RAG)" --> API
+    API -- "1. Wysłanie tekstu" --> Emb
+    Emb -- "2. Zwrócenie wektora" --> API
+    API -- "3. Wyszukiwanie wektorów" --> BQ
+    BQ -- "4. Zwrócenie kontekstu dok." --> API
+    API -- "5. Pytanie + Kontekst" --> LLM
+    LLM -- "6. Ostateczna odpowiedź" --> API
+    API -- "Zwrócenie odpowiedzi ekranowej" --> UI
+    
+    UI -. "POST /ask_direct (Baseline)" .-> API
+    API -. "Ominięcie RAG" .-> LLM
+```
 
 ## Z czego składa się kod?
 
