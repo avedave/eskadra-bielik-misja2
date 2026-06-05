@@ -1,4 +1,5 @@
-FROM ollama/ollama:latest
+#FROM ollama/ollama:latest
+FROM ollama/ollama:0.23.4   #Newer versions have compability issues with NVIDIA L4 on Google Cloud Run
 
 # Listen on all interfaces, port 8080
 ENV OLLAMA_HOST=0.0.0.0:8080
