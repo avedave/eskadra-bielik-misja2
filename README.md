@@ -84,7 +84,7 @@ Przykładowy kod źródłowy zawarty w tym repozytorium pozwala w szczególnośc
 
 7. Sklonuj repozytorium z przykładowym kodem i przejdź do nowoutworzonego katalogu
    ```bash
-   git clone https://github.com/avedave/eskadra-bielik-misja2
+   git clone https://github.com/jasiecky/bielik-workshop
    ```
 
 8. Przejdź do katalogu z kodem źródłowym
