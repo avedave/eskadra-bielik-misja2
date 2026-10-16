@@ -8,7 +8,7 @@ Niniejsze repozytorium prezentuje kompletne, bezserwerowe (serverless) rozwiąza
 
 Podstawowa architektura wdrażanego rozwiązania opiera się na poniższych serwisach i komponentach:
 - **Modelu językowym LLM:** Suwerenny polski model [Bielik](https://ollama.com/SpeakLeash/bielik-4.5b-v3.0-instruct) charakteryzujący się bardzo dobrym zrozumieniem języka polskiego oraz polskiego kontekstu kulturowego. Uruchomiony w usłudze Cloud Run, odpowiada za ostateczne generowanie naturalnej dla użytkownika odpowiedzi.
-- **Modelu osadzania (Embedding):** Wydajny model [EmbeddingGemma](https://deepmind.google/models/gemma/embeddinggemma/) uruchomiony w usłudze Cloud Run, służący do szybkiej zamiany tekstu (zapytań użytkownika i dokumentów docelowych) na reprezentację wektorową.
+- **Modelu osadzania (Embedding):** Wydajny model [EmbeddingGemma 2](https://ollama.com/library/embeddinggemma-2) uruchomiony w usłudze Cloud Run, służący do szybkiej zamiany tekstu (zapytań użytkownika i dokumentów docelowych) na reprezentację wektorową.
 - **Wektorowej Bazie Wiedzy:** Skalowalna hurtownia danych [BigQuery](https://cloud.google.com/bigquery?hl=en) z mechanizmem Vector Search zapewniająca wektorowe wyszukiwanie semantycznie dopasowanych fragmentów z pośród milionów dokumentów źródłowych.
 - **Logice i serwerze aplikacyjnym:** Aplikacja napisana w języku Python (z frameworkiem FastAPI), udostępniająca nakładkę graficzną Web UI oraz publiczne API spinające platformy w całość.
 
@@ -23,7 +23,7 @@ graph TD
     User([Użytkownik])
     UI[Web UI <br/> Przeglądarka]
     API[FastAPI <br/> Orchestration API]
-    Emb[EmbeddingGemma <br/> Cloud Run]
+    Emb[EmbeddingGemma 2 <br/> Cloud Run]
     BQ[(BigQuery <br/> Vector Search)]
     LLM[Bielik LLM <br/> Cloud Run]
 
@@ -47,7 +47,7 @@ Przykładowy kod źródłowy zawarty w tym repozytorium pozwala w szczególnośc
 
 * Skonfigurowanie własnej instancji modelu [Bielik](https://ollama.com/SpeakLeash/bielik-4.5b-v3.0-instruct) w oparciu o silnik [Ollama](https://ollama.com/)
 
-* Skonfigurowanie własnej instancji modelu osadzającego (embedding model) [EmbeddingGemma](https://deepmind.google/models/gemma/embeddinggemma/) w oparciu o [Ollama](https://ollama.com/)
+* Skonfigurowanie własnej instancji modelu osadzającego (embedding model) [EmbeddingGemma 2](https://ollama.com/library/embeddinggemma-2) w oparciu o [Ollama](https://ollama.com/)
 
 * Uruchomienie obu powyższych modeli na platformie typu bezserwerowego: [Cloud Run](https://cloud.google.com/run?hl=en)
 
@@ -144,7 +144,7 @@ Przykładowy kod źródłowy zawarty w tym repozytorium pozwala w szczególnośc
    cd ..
    ```
 
-## 4. Uruchomienie modelu embeddingowego EmbeddingGemma na Cloud Run
+## 4. Uruchomienie modelu embeddingowego EmbeddingGemma 2 na Cloud Run
 
 1. Przeanalizuj skrypt `embedding_model/cloud_run.sh`
 
@@ -223,6 +223,9 @@ Projekt wykorzystuje BigQuery z funkcją Vector Search jako bazę z wiedzą kont
 2. Sprawdź w Google Cloud Console -> BigQuery, czy rekordy pojawiły się w tabeli `rag_dataset.hotel_rules` 
    *(Proces indeksowania danych do Vector Search może chwilę potrwać, jednak dane tekstowe widoczne są natychmiast).*
 
+>[!WARNING]
+>Wektory wygenerowane przez różne modele embeddingowe nie są ze sobą kompatybilne. Jeżeli zmieniasz model osadzania (np. z `embeddinggemma` na `embeddinggemma-2`), wyczyść tabelę (`TRUNCATE TABLE rag_dataset.hotel_rules`) i ponownie zasil ją danymi, w przeciwnym razie wyszukiwanie wektorowe będzie zwracać błędne wyniki.
+
 3. Wykonaj testowe zapytanie wykorzystując RAG, dopytujące o informacje z wgranych reguł
    
    Pytanie o częstotliwość pomiaru chloru w basenie:
@@ -253,7 +256,7 @@ Aplikacja udostępnia proste API stworzone przy pomocy frameworka *FastAPI*, poz
 Aplikacja definiuje w pliku `orchestration/main.py` następujące ścieżki:
 
 * `GET /` – serwuje statyczny plik interfejsu użytkownika (`index.html`).
-* `POST /ingest` – przyjmuje plik CSV i indeksuje zawarte w nim informacje jako wektory w BigQuery (wykorzystując model embeddingowy `EmbeddingGemma`).
+* `POST /ingest` – przyjmuje plik CSV i indeksuje zawarte w nim informacje jako wektory w BigQuery (wykorzystując model embeddingowy `EmbeddingGemma 2`).
 * `POST /ask` – główny endpoint RAG: 
   - zamienia zapytanie z tekstu na wektor,
   - wyszukuje semantycznie 3 najbardziej zbliżone dokumenty wektorowe w tabeli BigQuery,
