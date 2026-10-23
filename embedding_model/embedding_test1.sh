@@ -10,6 +10,6 @@ curl -X POST "$EMBEDDING_SERVICE_URL/api/embed" \
     -H "Authorization: Bearer $ID_TOKEN" \
     -H "Content-Type: application/json" \
     -d '{
-        "model": "embeddinggemma",
+        "model": "embeddinggemma-2:270m",
         "input": "Sample text"
     }'

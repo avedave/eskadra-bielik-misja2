@@ -53,7 +53,7 @@ def get_embedding(text: str) -> list[float]:
         "Content-Type": "application/json"
     }
     payload = {
-        "model": "embeddinggemma",
+        "model": "embeddinggemma-2:270m",
         "input": text
     }
     response = requests.post(url, json=payload, headers=headers)
